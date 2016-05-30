@@ -1,0 +1,39 @@
+apply plugin: 'java'
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+
+  }
+}
+apply plugin: 'com.github.johnrengelman.shadow'
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'info.batey.djvm.ExampleApplication'
+  }
+}
+
+shadowJar {
+  mergeServiceFiles()
+  exclude 'META-INF/*.DSA'
+  exclude 'META-INF/*.RSA'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}               
+
+dependencies {
+  compile 'com.google.guava:guava:19.0'
+  compile 'io.reactivex:rxjava:1.1.5'
+
+  testCompile 'junit:junit:4.12'
+}
+
+
