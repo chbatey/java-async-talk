@@ -1,6 +1,9 @@
 package info.examples.batey.async.thirdparty;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import java.util.Map;
@@ -11,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ChannelService {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
+    private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
 
     private final Map<String, Channel> channels;
 
@@ -32,5 +36,9 @@ public class ChannelService {
 
     public Future<Channel> lookupChannelAsync(String name) {
         return executor.submit(() -> channels.get(name));
+    }
+
+    public ListenableFuture<Channel> lookupChannelListenable(String name) {
+        return ls.schedule(() -> channels.get(name), 100, TimeUnit.MILLISECONDS);
     }
 }

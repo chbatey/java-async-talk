@@ -1,17 +1,18 @@
 package info.examples.batey.async.thirdparty;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class PermissionsService {
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
+    private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
 
     public static PermissionsService permissionsService() {
         Map<String, Permissions> of = ImmutableMap.of(
@@ -34,5 +35,13 @@ public class PermissionsService {
 
     public Future<Permissions> permissionsAsync(String userName) {
         return executor.schedule(() -> permissions.get(userName), 100, TimeUnit.MILLISECONDS);
+    }
+
+    public ListenableFuture<Permissions> permissionsListenable(String userName) {
+        return ls.schedule(() -> permissions.get(userName), 100, TimeUnit.MILLISECONDS);
+    }
+
+    public CompletableFuture<Permissions> permissionsCompletable(String userName) {
+        return null;
     }
 }

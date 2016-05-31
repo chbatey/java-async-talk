@@ -40,13 +40,13 @@ public class Synchronous {
     public void channelService() {
         assertNull("No channel named charlie", channels.lookupChannel("charlie"));
 
-        assertEquals(new Channel("SkySportsOne"),  channels.lookupChannel("SkySportsOne"));
+        assertEquals(new Channel("SkySportsOne"), channels.lookupChannel("SkySportsOne"));
     }
 
     /**
      * Scenario:
      * A web request comes in asking if chbatey has the SPORTS permission
-     *
+     * <p>
      * Questions:
      * - Does the user exist?
      * - Is the user allowed to watch the channel?
@@ -67,11 +67,11 @@ public class Synchronous {
     /**
      * Scenario:
      * A web request comes in asking of chbatey can watch SkySportsOne
-     *
+     * <p>
      * Questions:
-     *  - Does this channel exist?
-     *  - Is chbatey a valid user?
-     *  - Does chbatey have the permissions to watch Sports?
+     * - Does this channel exist?
+     * - Is chbatey a valid user?
+     * - Does chbatey have the permissions to watch Sports?
      */
     @Test
     public void chbatey_watch_sky_sports_one() {
@@ -89,30 +89,21 @@ public class Synchronous {
     /**
      * Scenario:
      * A web request comes in asking of chbatey can watch SkySportsOne
-     *
+     * <p>
      * Questions:
-     *  - Does this channel exist?
-     *  - Is chbatey a valid user?
-     *  - Does chbatey have the permissions to watch Sports?
-     *
-     * Take a 1/3 of the response time.
+     * - Does this channel exist?
+     * - Is chbatey a valid user?
+     * - Does chbatey have the permissions to watch Sports?
+     * <p>
+     * Take a 2/3 of the response time.
      */
     @Test
-    public void chbatey_watch_sky_sports_one_fast() {
+    public void chbatey_watch_sky_sports_one_fast() throws Exception {
         ExecutorService es = Executors.newSingleThreadExecutor();
-
         Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
-
         User chbatey = users.lookupUser("chbatey");
-
         Permissions p = permissions.permissions(chbatey.getUserName());
-
-        Channel channel = null;
-        try {
-            channel = channelCallable.get();
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        Channel channel = channelCallable.get();
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));

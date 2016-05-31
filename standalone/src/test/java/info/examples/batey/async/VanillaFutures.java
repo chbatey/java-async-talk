@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
-public class Futures {
+public class VanillaFutures {
 
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
