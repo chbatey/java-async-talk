@@ -109,4 +109,41 @@ public class Synchronous {
         assertTrue(p.hasPermission("SPORTS"));
         assertNotNull(chbatey);
     }
+
+    public class Result {
+        private Channel channel;
+        private Permissions permissions;
+        private User user;
+
+        public Result(Channel channel, Permissions permissions, User user) {
+            this.channel = channel;
+            this.permissions = permissions;
+            this.user = user;
+        }
+    }
+
+    /**
+     * Do all of the above but also time out if we don't get all the results back
+     * within 500 milliseconds
+     */
+    @Test
+    public void chbatey_watch_sky_sports_one_timeout() throws Exception {
+        ExecutorService es = Executors.newCachedThreadPool();
+        Future<Result> wholeOperation =  es.submit(() -> {
+            Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
+            User chbatey = users.lookupUser("chbatey");
+            Permissions p = permissions.permissions(chbatey.getUserName());
+            try {
+                Channel channel = channelCallable.get();
+                return new Result(channel, p, chbatey);
+            } catch (Exception e) {
+                throw new RuntimeException("Oh dear", e);
+            }
+        });
+        Result result = wholeOperation.get(150, TimeUnit.MILLISECONDS);
+
+        assertNotNull(result.channel);
+        assertTrue(result.permissions.hasPermission("SPORTS"));
+        assertNotNull(result.user);
+    }
 }

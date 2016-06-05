@@ -2,11 +2,15 @@ package info.examples.batey.async.thirdparty;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.*;
 
 public class UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
@@ -34,7 +38,10 @@ public class UserService {
     }
 
     public ListenableFuture<User> lookupUserListenable(String userName) {
-        return ls.schedule(() -> users.get(userName), 100, TimeUnit.MILLISECONDS);
+        return ls.schedule(() -> {
+            LOGGER.info("Looking up user");
+            return users.get(userName);
+        }, 100, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<User> lookupUserCompletable(String userName) {
@@ -42,7 +49,6 @@ public class UserService {
         // How you can very easily wrap existing APIs with an API that returns
         // completable futures.
         executor.schedule(() -> cUser.complete(users.get(userName)), 100, TimeUnit.MILLISECONDS);
-
         return cUser;
     }
 }

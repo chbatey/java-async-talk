@@ -7,10 +7,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class ChannelService {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
@@ -40,5 +37,11 @@ public class ChannelService {
 
     public ListenableFuture<Channel> lookupChannelListenable(String name) {
         return ls.schedule(() -> channels.get(name), 100, TimeUnit.MILLISECONDS);
+    }
+
+    public CompletableFuture<Channel> lookupChannelCompletable(String name) {
+        CompletableFuture<Channel> result = new CompletableFuture<>();
+        executor.schedule(() -> result.complete(channels.get(name)), 100, TimeUnit.MILLISECONDS);
+        return result;
     }
 }

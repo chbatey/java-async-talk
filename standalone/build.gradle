@@ -32,6 +32,8 @@ repositories {
 dependencies {
   compile 'com.google.guava:guava:19.0'
   compile 'io.reactivex:rxjava:1.1.5'
+  compile 'ch.qos.logback:logback-classic:1.1.7'
+
 //  compile ''
 
   testCompile 'junit:junit:4.12'

@@ -1,16 +1,22 @@
 package info.examples.batey.async;
 
-import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import info.examples.batey.async.thirdparty.*;
 import org.junit.Test;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.util.concurrent.Futures.*;
 import static com.google.common.util.concurrent.Futures.transformAsync;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ListenableFutures {
+
+    private final ScheduledExecutorService es = Executors.newScheduledThreadPool(10);
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
     private PermissionsService permissions = PermissionsService.permissionsService();
@@ -75,8 +81,6 @@ public class ListenableFutures {
      * - Does this channel exist?
      * - Is chbatey a valid user?
      * - Does chbatey have the permissions to watch Sports?
-     *
-     *
      */
     @Test
     public void chbatey_watch_sky_sports_one() throws Exception {
@@ -94,6 +98,58 @@ public class ListenableFutures {
         assertNotNull(chbatey);
     }
 
+     /**
+     * Scenario:
+     * A web request comes in asking of chbatey can watch SkySportsOne
+     * <p>
+     * Questions:
+     * - Does this channel exist?
+     * - Is chbatey a valid user?
+     * - Does chbatey have the permissions to watch Sports?
+     * <p>
+     * Take a 2/3 of the response time.
+     */
+    @Test
+    public void chbatey_watch_sky_sports_one_fast() throws Exception {
+        Channel channel = null;
+        Permissions p = null;
+        ListenableFuture<User> chbatey = users.lookupUserListenable("chbatey");
+        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbatey, user -> permissions.permissionsListenable(user.getUserName()));
+        ListenableFuture<Channel> skySportsOne = channels.lookupChannelListenable("SkySportsOne");
+
+        channel = skySportsOne.get();
+        p = permissionsListenableFuture.get();
+
+        assertNotNull(channel);
+        assertTrue(p.hasPermission("SPORTS"));
+        assertNotNull(chbatey);
+   }
+
+
+    /**
+     * Do all of the above but also time out if we don't get all the results back
+     * within 500 milliseconds
+     */
+    @Test
+    public void chbatey_watch_sky_sports_one_timeout() throws Exception {
+        Channel channel = null;
+        Permissions p = null;
+        ListenableFuture<User> chbatey = users.lookupUserListenable("chbatey");
+        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbatey, user -> permissions.permissionsListenable(user.getUserName()));
+        ListenableFuture<Channel> skySportsOne = channels.lookupChannelListenable("SkySportsOne");
+
+        ListenableFuture<?> totalOperation = allAsList(permissionsListenableFuture, skySportsOne);
+        ListenableFuture<?> totalOperationWithTimeout = Futures.withTimeout(totalOperation, 500, TimeUnit.MILLISECONDS, es);
+
+        totalOperationWithTimeout.get();
+
+        channel = skySportsOne.get();
+        p = permissionsListenableFuture.get();
+
+        assertNotNull(channel);
+        assertTrue(p.hasPermission("SPORTS"));
+        assertNotNull(chbatey);
+    }
 
     // TODO
     /**
