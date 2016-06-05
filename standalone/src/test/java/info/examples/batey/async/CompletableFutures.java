@@ -106,8 +106,8 @@ public class CompletableFutures {
         CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserName()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
+        // todo finish
 
-        cPermissions.
 
         assertNotNull(channel);
         assertTrue(permissions.hasPermission("SPORTS"));
