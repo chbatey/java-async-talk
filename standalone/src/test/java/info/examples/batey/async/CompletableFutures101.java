@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
  *
  * *Accept* Consumer (doesn't return anything)
  *
+ *
  * *Run* Runnable
  *
  * Other method name

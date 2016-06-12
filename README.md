@@ -80,20 +80,49 @@ The scenario is from internet television where a user wants to watch an online c
   * Find its thread pools
   * Which thread does any transform / flatmap etc work on. Does it block on the first future?
   * Is it async at the IO layer?
-  * Do regular thread dumps of your application under load to aconfirm your assumptions
+  * Do regular thread dumps of your application under load to confirm your assumptions
 * Test with realistic concurrent users ASAP
   * Non-functional test that will fail if you block a thread that you are not meant to
 
-  
+### Demo
 
+* Show the Service file that we will add to
+* Show the synchronous test for UserService, ChannelsService and PermissionsService
+* Explain that all methods are implemented synchronously, Future, ListenableFuture and CompletableFuture
+* Go through thr requirements
+
+Requirement 1: Check chbatey has the SPORTS permission
+* Implement synchronously
+
+Requirement 2:  Check chbatey can watch SkySportsOne
+* Implement synchronously
+
+Requirement 3: Speed up scenario two by making any independent calls concurrent
+* Implement synchronously. Show how hard it is to do when all your
+  code relies on blocking calls e.g Using an executor for a small part
+* Implement with a vanilla Future  
+
+Requirement 4: Remove blocking
+* Given up on synchronous implementation. Explain why.
+* Introduce the ListenableFuture
+* Implement with call backs (urgly)
+* Implement with transforms and then a final callback
+
+Requirement 5: Remove Guava, only use JDK tools
+* Explain why bringing in Guava can be controversial
+* However it is heavily used and not everyone is on Java 8
 
 #### TODO
 
+Slide on converting from Async to syc vs sync to async
+Get java doc working in intellij and source attached
+Slide describing the scenario with interface
+Add slide showing the basic building blocks and how they map to Future, ListenableFuture, CompletableFuture, Observable
+Create some CompletableFuture Koans
 Converting between the various async tools
 Async HTTP Clients
-Async Databsae drivers
+Async Database drivers
 Async Queueing clients
-Show async servlets
 Work on ratpack example
 Add akka example
 

@@ -4,26 +4,26 @@ import java.util.Objects;
 
 public class User {
     private String name;
-    private String userName;
+    private String userId;
 
     public User(String name, String userName) {
         this.name = name;
-        this.userName = userName;
+        this.userId = userName;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUserId() {
+        return userId;
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "name='" + name + '\'' +
-                ", userName='" + userName + '\'' +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 
@@ -33,11 +33,11 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(name, user.name) &&
-                Objects.equals(userName, user.userName);
+                Objects.equals(userId, user.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, userName);
+        return Objects.hash(name, userId);
     }
 }

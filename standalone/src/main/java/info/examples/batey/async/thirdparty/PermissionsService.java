@@ -32,24 +32,24 @@ public class PermissionsService {
         this.permissions = permissions;
     }
 
-    public Permissions permissions(String userName) {
+    public Permissions permissions(String userId) {
         Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
-        return permissions.get(userName);
+        return permissions.get(userId);
     }
 
-    public Future<Permissions> permissionsAsync(String userName) {
-        return executor.schedule(() -> permissions.get(userName), 100, TimeUnit.MILLISECONDS);
+    public Future<Permissions> permissionsAsync(String userId) {
+        return executor.schedule(() -> permissions.get(userId), 100, TimeUnit.MILLISECONDS);
     }
 
-    public ListenableFuture<Permissions> permissionsListenable(String userName) {
+    public ListenableFuture<Permissions> permissionsListenable(String userId) {
         return ls.schedule(() -> {
             LOG.info("Getting permissions");
-            return permissions.get(userName);}, 100, TimeUnit.MILLISECONDS);
+            return permissions.get(userId);}, 100, TimeUnit.MILLISECONDS);
     }
 
-    public CompletableFuture<Permissions> permissionsCompletable(String userName) {
+    public CompletableFuture<Permissions> permissionsCompletable(String userId) {
         CompletableFuture<Permissions> result = new CompletableFuture<>();
-        executor.schedule(() -> result.complete(permissions.get(userName)), 100, TimeUnit.MILLISECONDS);
+        executor.schedule(() -> result.complete(permissions.get(userId)), 100, TimeUnit.MILLISECONDS);
         return result;
     }
 }

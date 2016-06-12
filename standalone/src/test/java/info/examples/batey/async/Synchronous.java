@@ -56,9 +56,7 @@ public class Synchronous {
         boolean hasSportsPermission = false;
 
         User chbatey = users.lookupUser("chbatey");
-
-        Permissions p = permissions.permissions(chbatey.getUserName());
-
+        Permissions p = permissions.permissions(chbatey.getUserId());
         hasSportsPermission = p.hasPermission("SPORTS");
 
         assertTrue(hasSportsPermission);
@@ -75,11 +73,13 @@ public class Synchronous {
      */
     @Test
     public void chbatey_watch_sky_sports_one() {
-        User chbatey = users.lookupUser("chbatey");
+        Channel channel = null;
+        User chbatey = null;
+        Permissions p = null;
 
-        Permissions p = permissions.permissions(chbatey.getUserName());
-
-        Channel channel = channels.lookupChannel("SkySportsOne");
+        chbatey = users.lookupUser("chbatey");             // ~100ms
+        p = permissions.permissions(chbatey.getUserId());  // ~100ms
+        channel = channels.lookupChannel("SkySportsOne");  // ~100ms
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
@@ -99,11 +99,15 @@ public class Synchronous {
      */
     @Test
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
+        Channel channel = null;
+        User chbatey = null;
+        Permissions p = null;
+
         ExecutorService es = Executors.newSingleThreadExecutor();
         Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
-        User chbatey = users.lookupUser("chbatey");
-        Permissions p = permissions.permissions(chbatey.getUserName());
-        Channel channel = channelCallable.get();
+        chbatey = users.lookupUser("chbatey");
+        p = permissions.permissions(chbatey.getUserId());
+        channel = channelCallable.get();
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
@@ -132,7 +136,7 @@ public class Synchronous {
         Future<Result> wholeOperation =  es.submit(() -> {
             Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
             User chbatey = users.lookupUser("chbatey");
-            Permissions p = permissions.permissions(chbatey.getUserName());
+            Permissions p = permissions.permissions(chbatey.getUserId());
             try {
                 Channel channel = channelCallable.get();
                 return new Result(channel, p, chbatey);

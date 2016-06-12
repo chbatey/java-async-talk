@@ -50,7 +50,7 @@ dependencies {
   compile 'org.glassfish.jersey.ext.rx:jersey-rx-client-java8:2.23'
   compile 'org.asynchttpclient:async-http-client:2.0.4'
   compile 'org.asynchttpclient:async-http-client-extras-guava:2.0.4'
-
+  compile 'com.google.guava:guava:19.0'
   compile project(":standalone")
 }
 

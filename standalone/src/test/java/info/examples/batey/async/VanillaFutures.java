@@ -23,7 +23,7 @@ public class VanillaFutures {
      * - Is the user allowed to watch the channel?
      */
     @Test
-    public void chbatey_has_sports() throws Exception {
+    public void chbatey_has_sports_blocking() throws Exception {
         boolean hasSportsPermission = false;
 
         Future<User> chbateyFuture = users.lookupUserAsync("chbatey");
@@ -31,13 +31,12 @@ public class VanillaFutures {
         // Make the blocking explicit
         User chbatey = chbateyFuture.get();
 
-        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserName());
+        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserId());
 
         // Explicit blocking
         Permissions p = pFuture.get();
 
         hasSportsPermission = p.hasPermission("SPORTS");
-
         assertTrue(hasSportsPermission);
 
     }
@@ -52,13 +51,13 @@ public class VanillaFutures {
      * - Does chbatey have the permissions to watch Sports?
      */
     @Test
-    public void chbatey_watch_sky_sports_one() throws Exception {
+    public void chbatey_watch_sky_sports_one_blocking() throws Exception {
         Future<User> chbateyFuture = users.lookupUserAsync("chbatey");
 
         // Make the blocking explicit
         User chbatey = chbateyFuture.get();
 
-        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserName());
+        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserId());
 
         // Explicit blocking
         Permissions p = pFuture.get();
@@ -84,7 +83,7 @@ public class VanillaFutures {
      * - Does chbatey have the permissions to watch Sports?
      */
     @Test
-    public void chbatey_watch_sky_sports_one_fast() throws Exception {
+    public void chbatey_watch_sky_sports_one_concurrent() throws Exception {
         Future<Channel> cFuture = channels.lookupChannelAsync("SkySportsOne");
 
         Future<User> chbateyFuture = users.lookupUserAsync("chbatey");
@@ -92,7 +91,7 @@ public class VanillaFutures {
         // Make the blocking explicit
         User chbatey = chbateyFuture.get();
 
-        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserName());
+        Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserId());
 
         // Explicit blocking
         Permissions p = pFuture.get();
@@ -103,6 +102,15 @@ public class VanillaFutures {
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
         assertNotNull(chbatey);
+
+    }
+
+    @Test
+    public void chbatey_watch_sky_sports_one_concurrent_no_blocking() throws Exception {
+        Future<Channel> cFuture = channels.lookupChannelAsync("SkySportsOne");
+        Future<User> chbateyFuture = users.lookupUserAsync("chbatey");
+        // ??
+        //Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserId());
 
     }
 }

@@ -4,6 +4,8 @@ import info.examples.batey.async.thirdparty.*;
 import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertNotNull;
@@ -11,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CompletableFutures {
 
+    private ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
     private PermissionsService permissions = PermissionsService.permissionsService();
@@ -24,7 +27,7 @@ public class CompletableFutures {
      * - Is the user allowed to watch the channel?
      */
     @Test
-    public void chbatey_has_sports() throws Exception {
+    public void chbatey_has_sports_blocking() throws Exception {
         boolean hasSportsPermission = false;
 
         CompletableFuture<User> chbateyFuture = users.lookupUserCompletable("chbatey");
@@ -32,7 +35,7 @@ public class CompletableFutures {
         // Make the blocking explicit
         User chbatey = chbateyFuture.get();
 
-        CompletableFuture<Permissions> pFuture = permissions.permissionsCompletable(chbatey.getUserName());
+        CompletableFuture<Permissions> pFuture = permissions.permissionsCompletable(chbatey.getUserId());
 
         // Explicit blocking
         Permissions p = pFuture.get();
@@ -51,16 +54,27 @@ public class CompletableFutures {
      * - Is the user allowed to watch the channel?
      */
     @Test
-    public void chbatey_has_sports_callbcaks_or_transforms() throws Exception {
+    public void chbatey_has_sports_compose_and_block() throws Exception {
         boolean hasSportsPermission = false;
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
         CompletableFuture<Permissions> cPermissions =
-                cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserName()));
+                cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
 
         // blocks but we could have used a call back
         hasSportsPermission = cPermissions.get().hasPermission("SPORTS");
 
         assertTrue(hasSportsPermission);
+    }
+
+    @Test
+    public void chbatey_has_sports_compose_no_blocking() throws Exception {
+        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
+        CompletableFuture<Permissions> cPermissions =
+                cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
+
+        cPermissions.thenAccept((Permissions p) -> {
+            p.hasPermission("SPORTS");
+        });
     }
 
     /**
@@ -79,7 +93,7 @@ public class CompletableFutures {
         Permissions permissions = null;
 
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserName()));
+        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserId()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
         channel = cChannel.get();
@@ -103,15 +117,23 @@ public class CompletableFutures {
         Permissions permissions = null;
 
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserName()));
+        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserId()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
-        // todo finish
+        CompletableFuture<Void> wholeOperation = CompletableFuture.allOf(cUser, cPermissions, cChannel);
+        CompletableFuture<?> timeout = timeout(150);
 
+        wholeOperation.acceptEither(timeout, )
 
         assertNotNull(channel);
         assertTrue(permissions.hasPermission("SPORTS"));
         assertNotNull(user);
 
+    }
+
+    private CompletableFuture<?> timeout(int millis) {
+        CompletableFuture<?> cf = new CompletableFuture<>();
+        ses.schedule(() -> cf.completeExceptionally(new RuntimeException("OMG we timed out")), millis, TimeUnit.MILLISECONDS);
+        return cf;
     }
 }
