@@ -55,8 +55,8 @@ public class Synchronous {
     public void chbatey_has_sports() throws Exception {
         boolean hasSportsPermission = false;
 
-        User chbatey = users.lookupUser("chbatey");
-        Permissions p = permissions.permissions(chbatey.getUserId());
+        User user = users.lookupUser("chbatey");
+        Permissions p = permissions.permissions(user.getUserId());
         hasSportsPermission = p.hasPermission("SPORTS");
 
         assertTrue(hasSportsPermission);
@@ -74,16 +74,16 @@ public class Synchronous {
     @Test
     public void chbatey_watch_sky_sports_one() {
         Channel channel = null;
-        User chbatey = null;
+        User user = null;
         Permissions p = null;
 
-        chbatey = users.lookupUser("chbatey");             // ~100ms
-        p = permissions.permissions(chbatey.getUserId());  // ~100ms
+        user = users.lookupUser("chbatey");             // ~100ms
+        p = permissions.permissions(user.getUserId());  // ~100ms
         channel = channels.lookupChannel("SkySportsOne");  // ~100ms
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
+        assertNotNull(user);
     }
 
     /**
@@ -100,30 +100,18 @@ public class Synchronous {
     @Test
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
         Channel channel = null;
-        User chbatey = null;
+        User user = null;
         Permissions p = null;
 
         ExecutorService es = Executors.newSingleThreadExecutor();
         Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
-        chbatey = users.lookupUser("chbatey");
-        p = permissions.permissions(chbatey.getUserId());
+        user = users.lookupUser("chbatey");
+        p = permissions.permissions(user.getUserId());
         channel = channelCallable.get();
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
-    }
-
-    public class Result {
-        private Channel channel;
-        private Permissions permissions;
-        private User user;
-
-        public Result(Channel channel, Permissions permissions, User user) {
-            this.channel = channel;
-            this.permissions = permissions;
-            this.user = user;
-        }
+        assertNotNull(user);
     }
 
     /**
@@ -132,6 +120,8 @@ public class Synchronous {
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
+        Result result = null;
+
         ExecutorService es = Executors.newCachedThreadPool();
         Future<Result> wholeOperation =  es.submit(() -> {
             Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
@@ -139,15 +129,14 @@ public class Synchronous {
             Permissions p = permissions.permissions(chbatey.getUserId());
             try {
                 Channel channel = channelCallable.get();
-                return new Result(channel, p, chbatey);
+                return new Result(channel, p);
             } catch (Exception e) {
                 throw new RuntimeException("Oh dear", e);
             }
         });
-        Result result = wholeOperation.get(150, TimeUnit.MILLISECONDS);
+        result = wholeOperation.get(500, TimeUnit.MILLISECONDS);
 
         assertNotNull(result.channel);
         assertTrue(result.permissions.hasPermission("SPORTS"));
-        assertNotNull(result.user);
     }
 }
