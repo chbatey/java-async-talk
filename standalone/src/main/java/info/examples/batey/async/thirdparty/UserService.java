@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 
 public class UserService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
@@ -39,7 +39,7 @@ public class UserService {
 
     public ListenableFuture<User> lookupUserListenable(String userName) {
         return ls.schedule(() -> {
-            LOGGER.info("Looking up user");
+            LOG.info("Looking up user");
             return users.get(userName);
         }, 100, TimeUnit.MILLISECONDS);
     }
@@ -48,7 +48,11 @@ public class UserService {
         CompletableFuture<User> cUser = new CompletableFuture<>();
         // How you can very easily wrap existing APIs with an API that returns
         // completable futures.
-        executor.schedule(() -> cUser.complete(users.get(userName)), 100, TimeUnit.MILLISECONDS);
+        executor.schedule(() -> {
+                    LOG.info("Look up user now finished");
+                    cUser.complete(users.get(userName));
+                },
+                100, TimeUnit.MILLISECONDS);
         return cUser;
     }
 }

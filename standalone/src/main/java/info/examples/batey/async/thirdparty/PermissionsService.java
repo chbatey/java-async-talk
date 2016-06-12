@@ -49,7 +49,10 @@ public class PermissionsService {
 
     public CompletableFuture<Permissions> permissionsCompletable(String userId) {
         CompletableFuture<Permissions> result = new CompletableFuture<>();
-        executor.schedule(() -> result.complete(permissions.get(userId)), 100, TimeUnit.MILLISECONDS);
+        executor.schedule(() -> {
+            LOG.info("Permissions look up complete");
+            result.complete(permissions.get(userId));
+        }, 100, TimeUnit.MILLISECONDS);
         return result;
     }
 }

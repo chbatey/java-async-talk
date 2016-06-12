@@ -2,17 +2,18 @@ package info.examples.batey.async;
 
 import info.examples.batey.async.thirdparty.*;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.*;
+import java.util.function.Function;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CompletableFutures {
 
+    private static Logger LOG = LoggerFactory.getLogger(CompletableFuture.class);
     private ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
@@ -112,28 +113,59 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        User user = null;
-        Channel channel = null;
-        Permissions permissions = null;
+        Result result = null;
 
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserId()));
+        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
-        CompletableFuture<Void> wholeOperation = CompletableFuture.allOf(cUser, cPermissions, cChannel);
-        CompletableFuture<?> timeout = timeout(150);
+        CompletableFuture<Result> cResult = cPermissions.thenCombine(cChannel, (p, c) -> new Result(c , p));
+        CompletableFuture<Result> cTimeout = timeout(500);
+        CompletableFuture<Result> cResultWithTimeout = cResult.applyToEither(cTimeout, Function.identity());
 
-        wholeOperation.acceptEither(timeout, )
+        blockUntilComplete(cResultWithTimeout);
 
-        assertNotNull(channel);
-        assertTrue(permissions.hasPermission("SPORTS"));
-        assertNotNull(user);
-
+        assertFalse(cResultWithTimeout.isCompletedExceptionally());
+        result = cResultWithTimeout.get();
+        assertNotNull(result.channel);
+        assertTrue(result.permissions.hasPermission("SPORTS"));
     }
 
-    private CompletableFuture<?> timeout(int millis) {
-        CompletableFuture<?> cf = new CompletableFuture<>();
-        ses.schedule(() -> cf.completeExceptionally(new RuntimeException("OMG we timed out")), millis, TimeUnit.MILLISECONDS);
+    private void blockUntilComplete(CompletableFuture<?> cf) {
+        try {
+            cf.get();
+        } catch (Exception e) {
+            LOG.warn("Future failed", e);
+        }
+    }
+
+    private CompletableFuture<Result> timeout(int millis) {
+        CompletableFuture<Result> cf = new CompletableFuture<>();
+        ses.schedule(() -> cf.completeExceptionally(new TimeoutException("OMG we timed out")), millis, TimeUnit.MILLISECONDS);
         return cf;
+    }
+
+    public static class Result {
+        private Channel channel;
+        private Permissions permissions;
+
+        public Result(Channel channel, Permissions permissions) {
+            this.channel = channel;
+            this.permissions = permissions;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Result result = (Result) o;
+            return Objects.equals(channel, result.channel) &&
+                    Objects.equals(permissions, result.permissions);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(channel, permissions);
+        }
     }
 }

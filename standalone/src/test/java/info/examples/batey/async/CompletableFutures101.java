@@ -2,6 +2,8 @@ package info.examples.batey.async;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -20,13 +22,12 @@ import static org.junit.Assert.*;
  *
  * *Accept* Consumer (doesn't return anything)
  *
- *
  * *Run* Runnable
  *
  * Other method name
  * -------------------------
  *
- * async* Executed on a different thread, default pool by default or the passed in executor.
+ * *Async* Executed on a different thread, default pool by default or the passed in executor.
  *
  * *Combine* Takes many CFs and turns them into one
  *
@@ -41,6 +42,8 @@ import static org.junit.Assert.*;
  * thenAccept, takes a consumer and applies it to a CF result, has to be side effecting
  */
 public class CompletableFutures101 {
+
+    private static Logger LOG = LoggerFactory.getLogger(CompletableFutures101.class);
 
     /**
      * What's the difference between get and join?
@@ -164,6 +167,29 @@ public class CompletableFutures101 {
 
         assertTrue(helloChris.isDone());
         assertEquals("Hello Chris", helloChris.get());
+    }
+
+    /**
+     * Dealing with Exceptions
+     */
+    @Test
+    public void exceptions() throws Exception {
+        CompletableFuture<String> chris = failed(new RuntimeException("Oh dear"));
+
+        chris.thenAccept(name -> {
+            LOG.info("I probably won't be called ");
+        });
+
+        CompletableFuture<String> safeChris = chris.exceptionally(ex -> "Trevor");
+
+        assertEquals("Trevor", safeChris.get());
+        assertTrue(safeChris.isDone());
+    }
+
+    private CompletableFuture<String> failed(Throwable e) {
+        CompletableFuture<String> result = new CompletableFuture<>();
+        result.completeExceptionally(e);
+        return result;
     }
 
     private CompletableFuture<String> nameAsync(String name) {

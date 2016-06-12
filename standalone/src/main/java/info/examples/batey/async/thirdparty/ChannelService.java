@@ -5,11 +5,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.*;
 
 public class ChannelService {
+    private static Logger LOG = LoggerFactory.getLogger(ChannelService.class);
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
 
@@ -41,7 +44,10 @@ public class ChannelService {
 
     public CompletableFuture<Channel> lookupChannelCompletable(String name) {
         CompletableFuture<Channel> result = new CompletableFuture<>();
-        executor.schedule(() -> result.complete(channels.get(name)), 100, TimeUnit.MILLISECONDS);
+        executor.schedule(() -> {
+            LOG.info("Channel lookup complete");
+            result.complete(channels.get(name));
+        }, 100, TimeUnit.MILLISECONDS);
         return result;
     }
 }
