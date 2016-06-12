@@ -30,7 +30,8 @@ public class ChannelService {
     }
 
     public Channel lookupChannel(String name) {
-        Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+        Uninterruptibles.sleepUninterruptibly(Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
+        LOG.info("Channel lookup complete");
         return channels.get(name);
     }
 
@@ -39,7 +40,7 @@ public class ChannelService {
     }
 
     public ListenableFuture<Channel> lookupChannelListenable(String name) {
-        return ls.schedule(() -> channels.get(name), 100, TimeUnit.MILLISECONDS);
+        return ls.schedule(() -> channels.get(name), Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<Channel> lookupChannelCompletable(String name) {
@@ -47,7 +48,7 @@ public class ChannelService {
         executor.schedule(() -> {
             LOG.info("Channel lookup complete");
             result.complete(channels.get(name));
-        }, 100, TimeUnit.MILLISECONDS);
+        }, Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
         return result;
     }
 }

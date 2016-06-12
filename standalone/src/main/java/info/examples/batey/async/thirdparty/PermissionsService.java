@@ -33,18 +33,19 @@ public class PermissionsService {
     }
 
     public Permissions permissions(String userId) {
-        Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+        Uninterruptibles.sleepUninterruptibly(Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
         return permissions.get(userId);
     }
 
     public Future<Permissions> permissionsAsync(String userId) {
-        return executor.schedule(() -> permissions.get(userId), 100, TimeUnit.MILLISECONDS);
+        return executor.schedule(() -> permissions.get(userId), Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<Permissions> permissionsListenable(String userId) {
         return ls.schedule(() -> {
             LOG.info("Getting permissions");
-            return permissions.get(userId);}, 100, TimeUnit.MILLISECONDS);
+            return permissions.get(userId);
+        }, Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<Permissions> permissionsCompletable(String userId) {
@@ -52,7 +53,7 @@ public class PermissionsService {
         executor.schedule(() -> {
             LOG.info("Permissions look up complete");
             result.complete(permissions.get(userId));
-        }, 100, TimeUnit.MILLISECONDS);
+        }, Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
         return result;
     }
 }

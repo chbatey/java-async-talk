@@ -1,15 +1,16 @@
 server:
-#  softNofileLimit: 1000
-#  hardNofileLimit: 1000
-#  minThreads: 1
 #  maxThreads: 5
+#  minThreads: 2
   applicationConnectors:
     - type: http
       port: 9080
+#      acceptorThreads: 1
+#      selectorThreads: 1
   adminConnectors:
     - type: http
       port: 8081
-
+      acceptorThreads: 1
+      selectorThreads: 1
 logging:
   level: INFO
   appenders:

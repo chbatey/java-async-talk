@@ -86,12 +86,15 @@ The scenario is from internet television where a user wants to watch an online c
 
 ### Demo
 
-* Show the Service file that we will add to
-* Show the synchronous test for UserService, ChannelsService and PermissionsService
-* Explain that all methods are implemented synchronously, Future, ListenableFuture and CompletableFuture
-* Go through thr requirements
+* Show the BasicService file and reference back to discussing it
+* Show the two service files we will be able to implement by the time we're done: Sync and Async TV service
 
-Requirement 1: Check chbatey has the SPORTS permission
+* Show the synchronous test for UserService, ChannelsService and PermissionsService
+* Explain that all calls are delayed by 500 milliseconds to handle delay
+* Explain that all methods are implemented synchronously, Future, ListenableFuture and CompletableFuture
+* Go through the requirements
+
+Requirement 1: Check user chbatey has the SPORTS permission
 * Implement synchronously
 
 Requirement 2:  Check chbatey can watch SkySportsOne
@@ -111,6 +114,17 @@ Requirement 4: Remove blocking
 Requirement 5: Remove Guava, only use JDK tools
 * Explain why bringing in Guava can be controversial
 * However it is heavily used and not everyone is on Java 8
+
+SyncTVService
+* Demo concurrent request time
+* Demo timeout
+
+AsyncTVService
+* Demo after
+
+Complete Demo:
+* 1000 requests 100 concurrent. Show thread count and memory
+* Reduce threads to 5 and do it again
 
 #### TODO
 

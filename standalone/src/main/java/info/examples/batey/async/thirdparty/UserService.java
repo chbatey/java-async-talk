@@ -29,19 +29,19 @@ public class UserService {
     }
 
     public User lookupUser(String userName) {
-        Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+        Uninterruptibles.sleepUninterruptibly(Config.USER_DELAY, TimeUnit.MILLISECONDS);
         return users.get(userName);
     }
 
     public Future<User> lookupUserAsync(String userName) {
-        return executor.schedule(() -> users.get(userName), 100, TimeUnit.MILLISECONDS);
+        return executor.schedule(() -> users.get(userName), Config.USER_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<User> lookupUserListenable(String userName) {
         return ls.schedule(() -> {
             LOG.info("Looking up user");
             return users.get(userName);
-        }, 100, TimeUnit.MILLISECONDS);
+        }, Config.USER_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<User> lookupUserCompletable(String userName) {
@@ -52,7 +52,7 @@ public class UserService {
                     LOG.info("Look up user now finished");
                     cUser.complete(users.get(userName));
                 },
-                100, TimeUnit.MILLISECONDS);
+                Config.USER_DELAY, TimeUnit.MILLISECONDS);
         return cUser;
     }
 }

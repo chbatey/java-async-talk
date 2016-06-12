@@ -14,6 +14,14 @@ public class Result {
         this.permissions = permissions;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public Permissions getPermissions() {
+        return permissions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
