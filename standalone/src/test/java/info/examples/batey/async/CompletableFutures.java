@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.function.Function;
 
@@ -145,27 +144,4 @@ public class CompletableFutures {
         return cf;
     }
 
-    public static class Result {
-        private Channel channel;
-        private Permissions permissions;
-
-        public Result(Channel channel, Permissions permissions) {
-            this.channel = channel;
-            this.permissions = permissions;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Result result = (Result) o;
-            return Objects.equals(channel, result.channel) &&
-                    Objects.equals(permissions, result.permissions);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(channel, permissions);
-        }
-    }
 }

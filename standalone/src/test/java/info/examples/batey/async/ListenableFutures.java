@@ -1,19 +1,20 @@
 package info.examples.batey.async;
 
+import com.google.common.base.Function;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.Uninterruptibles;
 import info.examples.batey.async.thirdparty.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.util.concurrent.Futures.*;
 import static com.google.common.util.concurrent.Futures.transformAsync;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,24 +39,54 @@ public class ListenableFutures {
     public void chbatey_has_sports_blocking() throws Exception {
         boolean hasSportsPermission = false;
 
-        ListenableFuture<User> chbateyFuture = users.lookupUserListenable("chbatey");
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
         // Make the blocking explicit
-        User chbatey = chbateyFuture.get();
+        User chbatey = lUser.get();
 
-        ListenableFuture<Permissions> pFuture = permissions.permissionsListenable(chbatey.getUserId());
+        ListenableFuture<Permissions> lPermissions = permissions.permissionsListenable(chbatey.getUserId());
 
         // Explicit blocking
-        Permissions p = pFuture.get();
+        Permissions p = lPermissions.get();
 
         hasSportsPermission = p.hasPermission("SPORTS");
 
         assertTrue(hasSportsPermission);
     }
 
+    /**
+     *
+     * Same scenario, try it wihout the blocking calls.
+     */
     @Test
     public void chbatey_has_sports_callbacks() throws Exception {
-        // Urgh
+        boolean hasSportsPermission = false;
+
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
+        Futures.addCallback(lUser, new FutureCallback<User>() {
+            @Override
+            public void onSuccess(User result) {
+                ListenableFuture<Permissions> lPermissions = permissions.permissionsListenable(result.getUserId());
+
+                Futures.addCallback(lPermissions, new FutureCallback<Permissions>() {
+                    @Override
+                    public void onSuccess(Permissions result) {
+                        // We can do it!
+                        result.hasPermission("SPORTS");
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
     }
 
     /**
@@ -70,10 +101,10 @@ public class ListenableFutures {
     public void chbatey_has_sports_transform_and_block() throws Exception {
         boolean hasSportsPermission = false;
 
-        ListenableFuture<User> chbateyFuture = users.lookupUserListenable("chbatey");
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
         // Transform async takes a Future -> Function that produces a future -> Future
-        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbateyFuture,
+        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(lUser,
                 input -> permissions.permissionsListenable(input.getUserId()));
 
         Permissions p = permissionsListenableFuture.get();
@@ -87,10 +118,10 @@ public class ListenableFutures {
     public void chbatey_has_sports_transform_no_blocking() throws Exception {
         boolean hasSportsPermission = false;
 
-        ListenableFuture<User> chbateyFuture = users.lookupUserListenable("chbatey");
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
         // Transform async takes a Future -> Function that produces a future -> Future
-        ListenableFuture<Permissions> lPermissions = transformAsync(chbateyFuture,
+        ListenableFuture<Permissions> lPermissions = transformAsync(lUser,
                 input -> permissions.permissionsListenable(input.getUserId()));
 
 
@@ -122,8 +153,8 @@ public class ListenableFutures {
     public void chbatey_watch_sky_sports_one() throws Exception {
         Channel channel = null;
         Permissions p = null;
-        ListenableFuture<User> chbatey = users.lookupUserListenable("chbatey");
-        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbatey, user -> permissions.permissionsListenable(user.getUserId()));
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
+        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(lUser, user -> permissions.permissionsListenable(user.getUserId()));
         ListenableFuture<Channel> skySportsOne = channels.lookupChannelListenable("SkySportsOne");
 
         channel = skySportsOne.get();
@@ -131,7 +162,7 @@ public class ListenableFutures {
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
+        assertNotNull(lUser);
     }
 
     /**
@@ -149,16 +180,16 @@ public class ListenableFutures {
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
         Channel channel = null;
         Permissions p = null;
-        ListenableFuture<Channel> skySportsOne = channels.lookupChannelListenable("SkySportsOne");
-        ListenableFuture<User> chbatey = users.lookupUserListenable("chbatey");
-        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbatey, user -> permissions.permissionsListenable(user.getUserId()));
+        ListenableFuture<Channel> lChannel = channels.lookupChannelListenable("SkySportsOne");
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
+        ListenableFuture<Permissions> lPermissions = transformAsync(lUser, user -> permissions.permissionsListenable(user.getUserId()));
 
-        channel = skySportsOne.get();
-        p = permissionsListenableFuture.get();
+        channel = lChannel.get();
+        p = lPermissions.get();
 
         assertNotNull(channel);
         assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
+        assertNotNull(lUser);
     }
 
 
@@ -168,27 +199,40 @@ public class ListenableFutures {
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        Channel channel = null;
-        Permissions p = null;
-        ListenableFuture<User> chbatey = users.lookupUserListenable("chbatey");
-        ListenableFuture<Permissions> permissionsListenableFuture = transformAsync(chbatey, user -> permissions.permissionsListenable(user.getUserId()));
-        ListenableFuture<Channel> skySportsOne = channels.lookupChannelListenable("SkySportsOne");
+        Result result = null;
+        ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
+        ListenableFuture<Permissions> lPermissions = transformAsync(lUser, user -> permissions.permissionsListenable(user.getUserId()));
+        ListenableFuture<Channel> lChannel = channels.lookupChannelListenable("SkySportsOne");
 
-        ListenableFuture<?> totalOperation = allAsList(permissionsListenableFuture, skySportsOne);
-        ListenableFuture<?> totalOperationWithTimeout = Futures.withTimeout(totalOperation, 500, TimeUnit.MILLISECONDS, es);
+        ListenableFuture<List<Object>> totalOperation = Futures.allAsList(lChannel, lPermissions);
+        ListenableFuture<List<Object>> totalOperationWithTimeout = Futures.withTimeout(totalOperation, 500, TimeUnit.MILLISECONDS, es);
+        ListenableFuture<Result> lResult = Futures.transform(totalOperationWithTimeout, this::fromList);
 
-        totalOperationWithTimeout.get();
+        blockUntilComplete(lResult);
 
-        channel = skySportsOne.get();
-        p = permissionsListenableFuture.get();
-
-        assertNotNull(channel);
-        assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
+        assertTrue(lResult.isDone());
+        result = lResult.get();
+        assertNotNull(result.channel);
+        assertTrue(result.permissions.hasPermission("SPORTS"));
     }
 
-    // TODO
-    /**
-     * Executors for ListenableFutures
-     */
+    private Result fromList(List<Object> list) {
+        return new Result((Channel) list.get(0), (Permissions) list.get(1));
+    }
+
+
+    private void blockUntilComplete(ListenableFuture<?> future) {
+        try {
+            future.get();
+        } catch (Exception e) {
+            LOG.warn("Future failed", e);
+        }
+    }
+
+    public ListenableFuture<Result> combine(ListenableFuture<Channel> futureA,
+                                               final ListenableFuture<Permissions> futureB) {
+        return Futures.transformAsync(futureA, a ->
+                Futures.transform(futureB, (Function<Permissions, Result>) b ->
+                        new Result(a, b)));
+    }
 }
