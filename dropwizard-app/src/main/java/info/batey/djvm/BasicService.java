@@ -30,6 +30,13 @@ public class BasicService {
         this.httpClient = httpClient;
     }
 
+    // Synchronous
+    @GET
+    @Path("funky-sync-stuff")
+    public String sync() {
+        return "Hello World";
+    }
+
     // Asynchronous
     @GET
     @Path("funky-async-stuff")

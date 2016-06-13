@@ -1,6 +1,7 @@
 package info.examples.batey.async;
 
 import info.examples.batey.async.thirdparty.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.*;
@@ -12,6 +13,19 @@ public class Synchronous {
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
     private PermissionsService permissions = PermissionsService.permissionsService();
+
+    private Channel channel;
+    private User user;
+    private Permissions userPermissions;
+    private Result result;
+
+    @Before
+    public void setup() {
+        channel = null;
+        user = null;
+        userPermissions = null;
+        result = null;
+    }
 
     /**
      * Show how the user service works
@@ -53,13 +67,10 @@ public class Synchronous {
      */
     @Test
     public void chbatey_has_sports() throws Exception {
-        boolean hasSportsPermission = false;
+        user = users.lookupUser("chbatey");
+        userPermissions = permissions.permissions(user.getUserId());
 
-        User user = users.lookupUser("chbatey");
-        Permissions p = permissions.permissions(user.getUserId());
-        hasSportsPermission = p.hasPermission("SPORTS");
-
-        assertTrue(hasSportsPermission);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     /**
@@ -73,16 +84,12 @@ public class Synchronous {
      */
     @Test
     public void chbatey_watch_sky_sports_one() {
-        Channel channel = null;
-        User user = null;
-        Permissions p = null;
-
-        user = users.lookupUser("chbatey");             // ~100ms
-        p = permissions.permissions(user.getUserId());  // ~100ms
-        channel = channels.lookupChannel("SkySportsOne");  // ~100ms
+        user = users.lookupUser("chbatey");             // ~500ms
+        userPermissions = permissions.permissions(user.getUserId());  // ~500ms
+        channel = channels.lookupChannel("SkySportsOne");  // ~500ms
 
         assertNotNull(channel);
-        assertTrue(p.hasPermission("SPORTS"));
+        assertTrue(userPermissions.hasPermission("SPORTS"));
         assertNotNull(user);
     }
 
@@ -99,29 +106,23 @@ public class Synchronous {
      */
     @Test
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
-        Channel channel = null;
-        User user = null;
-        Permissions p = null;
-
         ExecutorService es = Executors.newSingleThreadExecutor();
-        Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
+        Future<Channel> fChannel = es.submit(() -> channels.lookupChannel("SkySportsOne"));
         user = users.lookupUser("chbatey");
-        p = permissions.permissions(user.getUserId());
-        channel = channelCallable.get();
+        userPermissions = permissions.permissions(user.getUserId());
+        channel = fChannel.get();
 
         assertNotNull(channel);
-        assertTrue(p.hasPermission("SPORTS"));
+        assertTrue(userPermissions.hasPermission("SPORTS"));
         assertNotNull(user);
     }
 
     /**
      * Do all of the above but also time out if we don't get all the results back
-     * within 500 milliseconds
+     * within 1100 milliseconds
      */
-    @Test
+    @Test(timeout = 1100)
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        Result result = null;
-
         ExecutorService es = Executors.newCachedThreadPool();
         Future<Result> wholeOperation =  es.submit(() -> {
             Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
@@ -134,7 +135,7 @@ public class Synchronous {
                 throw new RuntimeException("Oh dear", e);
             }
         });
-        result = wholeOperation.get(500, TimeUnit.MILLISECONDS);
+        result = wholeOperation.get(1100, TimeUnit.MILLISECONDS);
 
         assertNotNull(result.channel);
         assertTrue(result.permissions.hasPermission("SPORTS"));

@@ -36,7 +36,7 @@ public class ChannelService {
     }
 
     public Future<Channel> lookupChannelAsync(String name) {
-        return executor.submit(() -> channels.get(name));
+        return executor.schedule(() -> channels.get(name), Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<Channel> lookupChannelListenable(String name) {

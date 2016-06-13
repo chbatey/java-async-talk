@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 public class CompletableFutures {
 
     private static Logger LOG = LoggerFactory.getLogger(CompletableFuture.class);
+
     private ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
@@ -42,8 +43,6 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_has_sports_blocking() throws Exception {
-        boolean hasSportsPermission = false;
-
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
 
         // Make the blocking explicit
@@ -54,9 +53,7 @@ public class CompletableFutures {
         // Explicit blocking
         userPermissions = pFuture.get();
 
-        hasSportsPermission = userPermissions.hasPermission("SPORTS");
-
-        assertTrue(hasSportsPermission);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     /**
@@ -69,15 +66,14 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_has_sports_compose_and_block() throws Exception {
-        boolean hasSportsPermission = false;
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
         CompletableFuture<Permissions> cPermissions =
                 cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
 
         // blocks but we could have used a call back
-        hasSportsPermission = cPermissions.get().hasPermission("SPORTS");
+        userPermissions = cPermissions.get();
 
-        assertTrue(hasSportsPermission);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     @Test
@@ -119,6 +115,8 @@ public class CompletableFutures {
     /**
      * Do all of the above but also time out if we don't get all the results back
      * within 500 milliseconds
+     *
+     * applyToEither
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
@@ -151,5 +149,4 @@ public class CompletableFutures {
         ses.schedule(() -> cf.completeExceptionally(new TimeoutException("OMG we timed out")), millis, TimeUnit.MILLISECONDS);
         return cf;
     }
-
 }

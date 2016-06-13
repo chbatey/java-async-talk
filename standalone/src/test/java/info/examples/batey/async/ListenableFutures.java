@@ -50,8 +50,6 @@ public class ListenableFutures {
      */
     @Test
     public void chbatey_has_sports_blocking() throws Exception {
-        boolean hasSportsPermission = false;
-
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
         // Make the blocking explicit
@@ -62,18 +60,14 @@ public class ListenableFutures {
         // Explicit blocking
         userPermissions = lPermissions.get();
 
-        hasSportsPermission = userPermissions.hasPermission("SPORTS");
-
-        assertTrue(hasSportsPermission);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     /**
-     * Same scenario, try it wihout the blocking calls.
+     * Same scenario, try it without the blocking calls.
      */
     @Test
     public void chbatey_has_sports_callbacks() throws Exception {
-        boolean hasSportsPermission = false;
-
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
         Futures.addCallback(lUser, new FutureCallback<User>() {
             @Override
@@ -111,7 +105,6 @@ public class ListenableFutures {
      */
     @Test
     public void chbatey_has_sports_transform_and_block() throws Exception {
-        boolean hasSportsPermission = false;
 
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
@@ -120,16 +113,13 @@ public class ListenableFutures {
                 input -> permissions.permissionsListenable(input.getUserId()));
 
         userPermissions = permissionsListenableFuture.get();
-        hasSportsPermission = userPermissions.hasPermission("SPORTS");
 
         // Explicit blocking
-        assertTrue(hasSportsPermission);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     @Test
     public void chbatey_has_sports_transform_no_blocking() throws Exception {
-        boolean hasSportsPermission = false;
-
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
 
         // Transform async takes a Future -> Function that produces a future -> Future
@@ -186,7 +176,7 @@ public class ListenableFutures {
      * <p>
      * Take a 2/3 of the response time.
      */
-    @Test
+    @Test(timeout = 1100)
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
         ListenableFuture<Channel> lChannel = channels.lookupChannelListenable("SkySportsOne");
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
