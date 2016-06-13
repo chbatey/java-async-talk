@@ -1,6 +1,7 @@
 package info.examples.batey.async;
 
 import info.examples.batey.async.thirdparty.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,19 @@ public class CompletableFutures {
     private ChannelService channels = ChannelService.channelService();
     private PermissionsService permissions = PermissionsService.permissionsService();
 
+    private Channel channel;
+    private User user;
+    private Permissions userPermissions;
+    private Result result;
+
+    @Before
+    public void setup() {
+        channel = null;
+        user = null;
+        userPermissions = null;
+        result = null;
+    }
+
     /**
      * Scenario:
      * A web request comes in asking if chbatey has the SPORTS permission
@@ -30,17 +44,17 @@ public class CompletableFutures {
     public void chbatey_has_sports_blocking() throws Exception {
         boolean hasSportsPermission = false;
 
-        CompletableFuture<User> chbateyFuture = users.lookupUserCompletable("chbatey");
+        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
 
         // Make the blocking explicit
-        User chbatey = chbateyFuture.get();
+        user = cUser.get();
 
-        CompletableFuture<Permissions> pFuture = permissions.permissionsCompletable(chbatey.getUserId());
+        CompletableFuture<Permissions> pFuture = permissions.permissionsCompletable(user.getUserId());
 
         // Explicit blocking
-        Permissions p = pFuture.get();
+        userPermissions = pFuture.get();
 
-        hasSportsPermission = p.hasPermission("SPORTS");
+        hasSportsPermission = userPermissions.hasPermission("SPORTS");
 
         assertTrue(hasSportsPermission);
     }
@@ -88,20 +102,16 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_watch_sky_sports_one() throws Exception {
-        User user = null;
-        Channel channel = null;
-        Permissions permissions = null;
-
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> this.permissions.permissionsCompletable(u.getUserId()));
+        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
         channel = cChannel.get();
-        permissions = cPermissions.get();
+        userPermissions = cPermissions.get();
         user = cUser.get(); // will definitely be done as permissions is done
 
         assertNotNull(channel);
-        assertTrue(permissions.hasPermission("SPORTS"));
+        assertTrue(userPermissions.hasPermission("SPORTS"));
         assertNotNull(user);
     }
 
@@ -112,14 +122,12 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        Result result = null;
-
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
         CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
 
-        CompletableFuture<Result> cResult = cPermissions.thenCombine(cChannel, (p, c) -> new Result(c , p));
-        CompletableFuture<Result> cTimeout = timeout(500);
+        CompletableFuture<Result> cResult = cPermissions.thenCombine(cChannel, (p, c) -> new Result(c, p));
+        CompletableFuture<Result> cTimeout = timeout(3000);
         CompletableFuture<Result> cResultWithTimeout = cResult.applyToEither(cTimeout, Function.identity());
 
         blockUntilComplete(cResultWithTimeout);

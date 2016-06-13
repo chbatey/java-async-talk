@@ -1,6 +1,7 @@
 package info.examples.batey.async;
 
 import info.examples.batey.async.thirdparty.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Future;
@@ -12,6 +13,17 @@ public class VanillaFutures {
     private UserService users = UserService.userService();
     private ChannelService channels = ChannelService.channelService();
     private PermissionsService permissions = PermissionsService.permissionsService();
+
+    private Channel channel;
+    private User user;
+    private Permissions userPermissions;
+
+    @Before
+    public void setup() {
+        channel = null;
+        user = null;
+        userPermissions = null;
+    }
 
     /**
      * Scenario:
@@ -59,15 +71,15 @@ public class VanillaFutures {
         Future<Permissions> fPermissions = permissions.permissionsAsync(chbatey.getUserId());
 
         // Explicit blocking
-        Permissions p = fPermissions.get();
+        userPermissions = fPermissions.get();
 
         Future<Channel> fChannel = channels.lookupChannelAsync("SkySportsOne");
 
         // Explicit blocking
-        Channel channel = fChannel.get();
+        channel = fChannel.get();
 
         assertNotNull(channel);
-        assertTrue(p.hasPermission("SPORTS"));
+        assertTrue(userPermissions.hasPermission("SPORTS"));
         assertNotNull(chbatey);
 
     }
@@ -88,19 +100,19 @@ public class VanillaFutures {
         Future<User> fUser = users.lookupUserAsync("chbatey");
 
         // Make the blocking explicit
-        User chbatey = fUser.get();
+        user = fUser.get();
 
-        Future<Permissions> fPermissions = permissions.permissionsAsync(chbatey.getUserId());
-
-        // Explicit blocking
-        Permissions p = fPermissions.get();
+        Future<Permissions> fPermissions = permissions.permissionsAsync(user.getUserId());
 
         // Explicit blocking
-        Channel channel = fChannel.get();
+        userPermissions = fPermissions.get();
+
+        // Explicit blocking
+        channel = fChannel.get();
 
         assertNotNull(channel);
-        assertTrue(p.hasPermission("SPORTS"));
-        assertNotNull(chbatey);
+        assertTrue(userPermissions.hasPermission("SPORTS"));
+        assertNotNull(user);
 
     }
 
