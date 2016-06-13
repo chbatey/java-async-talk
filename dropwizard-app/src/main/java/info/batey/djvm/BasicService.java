@@ -25,8 +25,6 @@ public class BasicService {
     private static final Logger LOG = LoggerFactory.getLogger(BasicService.class);
 
     private final HttpClient httpClient;
-    private final UserService users = UserService.userService();
-    private final PermissionsService permissions = PermissionsService.permissionsService();
 
     public BasicService(HttpClient httpClient) {
         this.httpClient = httpClient;

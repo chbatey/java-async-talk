@@ -128,10 +128,7 @@ Complete Demo:
 
 #### TODO
 
-Slide on converting from Async to syc vs sync to async
-Get java doc working in intellij and source attached
-Slide describing the scenario with interface
-Add slide showing the basic building blocks and how they map to Future, ListenableFuture, CompletableFuture, Observable
+??? Slide on converting from Async to syc vs sync to async
 
 
 
