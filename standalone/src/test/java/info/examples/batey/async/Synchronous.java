@@ -104,7 +104,7 @@ public class Synchronous {
      * <p>
      * Take a 2/3 of the response time.
      */
-    @Test
+    @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
         ExecutorService es = Executors.newSingleThreadExecutor();
         Future<Channel> fChannel = es.submit(() -> channels.lookupChannel("SkySportsOne"));
