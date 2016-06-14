@@ -86,9 +86,8 @@ The scenario is from internet television where a user wants to watch an online c
 
 ### Demo
 
-* Show the BasicService file and reference back to discussing it
-* Show the two service files we will be able to implement by the time we're done: Sync and Async TV service
-
+* Show the synchronous tv service and show the async service we need to 
+  implement by the end
 * Show the synchronous test for UserService, ChannelsService and PermissionsService
 * Explain that all calls are delayed by 500 milliseconds to handle delay
 * Explain that all methods are implemented synchronously, Future, ListenableFuture and CompletableFuture
@@ -129,9 +128,6 @@ Complete Demo:
 #### TODO
 
 ??? Slide on converting from Async to syc vs sync to async
-
-
-
 Create some CompletableFuture Koans
 Converting between the various async tools
 Async HTTP Clients
