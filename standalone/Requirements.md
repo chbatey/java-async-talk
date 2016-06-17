@@ -1,6 +1,6 @@
 1 - Check chbatey has the SPORTS permission
 
-a) Check chatey exists
+a) Check chbatey exists
 b) Check he has the SPORTS permission
 
 Call b depends on call a

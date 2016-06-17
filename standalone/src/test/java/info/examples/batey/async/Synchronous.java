@@ -34,7 +34,7 @@ public class Synchronous {
     public void userService() {
         assertNull("I don't expect charlie to exist", users.lookupUser("charlie"));
 
-        assertEquals(new User("Christopher Batey", "chbatey"), users.lookupUser("chbatey"));
+        assertEquals(new User("Christopher Batey", "chbatey", 1), users.lookupUser("chbatey"));
     }
 
     /**
@@ -42,9 +42,9 @@ public class Synchronous {
      */
     @Test
     public void permissionsService() {
-        assertNull("I don't expect charlie to have any permissions", permissions.permissions("charilie"));
+        assertNull("I don't expect charlie to have any permissions", permissions.permissions(3));
 
-        assertEquals(Permissions.permissions("ENTS", "SPORTS"), permissions.permissions("chbatey"));
+        assertEquals(Permissions.permissions("ENTS", "SPORTS"), permissions.permissions(1));
     }
 
     /**

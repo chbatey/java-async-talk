@@ -17,8 +17,8 @@ public class UserService {
 
     public static UserService userService() {
         return new UserService(ImmutableMap.of(
-                "chbatey", new User("Christopher Batey", "chbatey"),
-                "trevor", new User("Trevor Sinclair", "trevor")
+                "chbatey", new User("Christopher Batey", "chbatey", 1),
+                "trevor", new User("Trevor Sinclair", "trevor", 2)
         ));
     }
 
