@@ -1,21 +1,25 @@
 package info.examples.batey.async.thirdparty;
 
-import java.util.Objects;
-
 public class User {
     private String name;
-    private String userId;
+    private String userName;
+    private int userId;
 
-    public User(String name, String userName) {
+    public User(String name, String userName, int userId) {
         this.name = name;
-        this.userId = userName;
+        this.userName = userName;
+        this.userId = userId;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getUserId() {
+    public String getUserName() {
+        return userName;
+    }
+
+    public int getUserId() {
         return userId;
     }
 
@@ -23,7 +27,8 @@ public class User {
     public String toString() {
         return "User{" +
                 "name='" + name + '\'' +
-                ", userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userId=" + userId +
                 '}';
     }
 
@@ -31,13 +36,19 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         User user = (User) o;
-        return Objects.equals(name, user.name) &&
-                Objects.equals(userId, user.userId);
+
+        if (userId != user.userId) return false;
+        if (name != null ? !name.equals(user.name) : user.name != null) return false;
+        return userName != null ? userName.equals(user.userName) : user.userName == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, userId);
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
+        result = 31 * result + userId;
+        return result;
     }
 }

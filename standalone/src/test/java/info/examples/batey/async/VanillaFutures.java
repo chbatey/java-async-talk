@@ -43,7 +43,7 @@ public class VanillaFutures {
         Future<Permissions> fPermission = permissions.permissionsAsync(chbatey.getUserId());
 
         // Explicit blocking
-        Permissions p = fPermission.get();
+        userPermissions = fPermission.get();
 
         assertTrue(userPermissions.hasPermission("SPORTS"));
 
@@ -118,6 +118,6 @@ public class VanillaFutures {
         Future<Channel> fChannel = channels.lookupChannelAsync("SkySportsOne");
         Future<User> fUser = users.lookupUserAsync("chbatey");
         // ??
-        //Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserId());
+        //Future<Permissions> pFuture = permissions.permissionsAsync(chbatey.getUserName());
     }
 }

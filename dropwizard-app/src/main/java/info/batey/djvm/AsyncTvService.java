@@ -1,22 +1,13 @@
 package info.batey.djvm;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.Uninterruptibles;
 import info.examples.batey.async.Result;
 import info.examples.batey.async.thirdparty.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,7 +39,7 @@ public class AsyncTvService {
                                   @PathParam("user") String userName,
                                   @PathParam("permission") String permission) {
         users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()))
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()))
                 .thenAccept(p -> asyncResponse.resume(p.hasPermission(permission)));
     }
 
@@ -59,7 +50,7 @@ public class AsyncTvService {
                                 @PathParam("permission") String permission,
                                 @PathParam("channel") String channel) {
         CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()));
 
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
 
@@ -86,7 +77,7 @@ public class AsyncTvService {
                                     @PathParam("channel") String channel) {
 
          CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()));
 
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
 

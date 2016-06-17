@@ -11,9 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.google.common.util.concurrent.Futures.transformAsync;
 import static org.junit.Assert.assertNotNull;
@@ -195,7 +193,7 @@ public class ListenableFutures {
      * Do all of the above but also time out if we don't get all the results back
      * within 500 milliseconds
      */
-    @Test
+    @Test(expected = ExecutionException.class)
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
         ListenableFuture<Permissions> lPermissions = transformAsync(lUser, user -> permissions.permissionsListenable(user.getUserId()));
