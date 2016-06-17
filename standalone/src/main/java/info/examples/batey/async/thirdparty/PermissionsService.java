@@ -34,16 +34,20 @@ public class PermissionsService {
 
     public Permissions permissions(String userId) {
         Uninterruptibles.sleepUninterruptibly(Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
+        LOG.info("Permission lookup complete");
         return permissions.get(userId);
     }
 
     public Future<Permissions> permissionsAsync(String userId) {
-        return executor.schedule(() -> permissions.get(userId), Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
+        return executor.schedule(() -> {
+            LOG.info("Permission lookup complete");
+            return permissions.get(userId);
+        }, Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<Permissions> permissionsListenable(String userId) {
         return ls.schedule(() -> {
-            LOG.info("Getting permissions");
+            LOG.info("Permission lookup complete");
             return permissions.get(userId);
         }, Config.PERMISSION_DELAY, TimeUnit.MILLISECONDS);
     }

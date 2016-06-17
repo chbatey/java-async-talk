@@ -30,16 +30,20 @@ public class UserService {
 
     public User lookupUser(String userName) {
         Uninterruptibles.sleepUninterruptibly(Config.USER_DELAY, TimeUnit.MILLISECONDS);
+        LOG.info("User look up complete");
         return users.get(userName);
     }
 
     public Future<User> lookupUserAsync(String userName) {
-        return executor.schedule(() -> users.get(userName), Config.USER_DELAY, TimeUnit.MILLISECONDS);
+        return executor.schedule(() -> {
+            LOG.info("User look up complete");
+            return users.get(userName);
+        }, Config.USER_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<User> lookupUserListenable(String userName) {
         return ls.schedule(() -> {
-            LOG.info("Looking up user");
+            LOG.info("User lookup complete");
             return users.get(userName);
         }, Config.USER_DELAY, TimeUnit.MILLISECONDS);
     }
@@ -49,7 +53,7 @@ public class UserService {
         // How you can very easily wrap existing APIs with an API that returns
         // completable futures.
         executor.schedule(() -> {
-                    LOG.info("Look up user now finished");
+                    LOG.info("User lookup complete");
                     cUser.complete(users.get(userName));
                 },
                 Config.USER_DELAY, TimeUnit.MILLISECONDS);

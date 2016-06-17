@@ -36,11 +36,17 @@ public class ChannelService {
     }
 
     public Future<Channel> lookupChannelAsync(String name) {
-        return executor.schedule(() -> channels.get(name), Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
+        return executor.schedule(() -> {
+            LOG.info("Channel lookup complete");
+            return channels.get(name);
+        }, Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public ListenableFuture<Channel> lookupChannelListenable(String name) {
-        return ls.schedule(() -> channels.get(name), Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
+        return ls.schedule(() -> {
+            LOG.info("Channel lookup complete");
+            return channels.get(name);
+        }, Config.CHANNEL_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<Channel> lookupChannelCompletable(String name) {
