@@ -1,10 +1,7 @@
 package info.examples.batey.async.thirdparty;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.common.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +12,8 @@ public class PermissionsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PermissionsService.class);
 
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+            new ThreadFactoryBuilder().setNameFormat("permissions-service-%d").build());
     private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
 
     public static PermissionsService permissionsService() {

@@ -12,7 +12,8 @@ public class UserService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+            new ThreadFactoryBuilder().setNameFormat("user-service-%d").build());
     private final ListeningScheduledExecutorService ls = MoreExecutors.listeningDecorator(executor);
 
     public static UserService userService() {
