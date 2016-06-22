@@ -96,7 +96,7 @@ public class CompletableFutures {
      * - Is chbatey a valid user?
      * - Does chbatey have the permissions to watch Sports?
      */
-    @Test
+    @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one() throws Exception {
         CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
         CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));

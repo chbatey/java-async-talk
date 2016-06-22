@@ -119,9 +119,9 @@ public class Synchronous {
 
     /**
      * Do all of the above but also time out if we don't get all the results back
-     * within 1100 milliseconds
+     * within 1200 milliseconds
      */
-    @Test(timeout = 1100)
+    @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
         ExecutorService es = Executors.newCachedThreadPool();
         Future<Result> wholeOperation =  es.submit(() -> {
@@ -135,7 +135,7 @@ public class Synchronous {
                 throw new RuntimeException("Oh dear", e);
             }
         });
-        result = wholeOperation.get(1100, TimeUnit.MILLISECONDS);
+        result = wholeOperation.get(1200, TimeUnit.MILLISECONDS);
 
         assertNotNull(result.channel);
         assertTrue(result.permissions.hasPermission("SPORTS"));

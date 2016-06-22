@@ -90,7 +90,7 @@ public class VanillaFutures {
      * - Is chbatey a valid user?
      * - Does chbatey have the permissions to watch Sports?
      */
-    @Test(timeout = 1100)
+    @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_concurrent() throws Exception {
         Future<Channel> fChannel = channels.lookupChannelAsync("SkySportsOne");
 

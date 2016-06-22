@@ -39,7 +39,7 @@ public class AsyncTvService {
                                   @PathParam("user") String userName,
                                   @PathParam("permission") String permission) {
         users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()))
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()))
                 .thenAccept(p -> asyncResponse.resume(p.hasPermission(permission)));
     }
 
@@ -50,7 +50,7 @@ public class AsyncTvService {
                                 @PathParam("permission") String permission,
                                 @PathParam("channel") String channel) {
         CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()));
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
 
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
 
@@ -77,7 +77,7 @@ public class AsyncTvService {
                                     @PathParam("channel") String channel) {
 
          CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserName()));
+                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
 
         CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
 

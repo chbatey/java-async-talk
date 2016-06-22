@@ -174,7 +174,7 @@ public class ListenableFutures {
      * <p>
      * Take a 2/3 of the response time.
      */
-    @Test(timeout = 1100)
+    @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
         ListenableFuture<Channel> lChannel = channels.lookupChannelListenable("SkySportsOne");
         ListenableFuture<User> lUser = users.lookupUserListenable("chbatey");
