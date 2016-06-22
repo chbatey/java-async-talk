@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
-import java.util.function.Function;
 
 import static org.junit.Assert.*;
 
@@ -66,25 +65,13 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_has_sports_compose_and_block() throws Exception {
-        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions =
-                cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
-
-        // blocks but we could have used a call back
-        userPermissions = cPermissions.get();
-
+        // Skip
         assertTrue(userPermissions.hasPermission("SPORTS"));
     }
 
     @Test
     public void chbatey_has_sports_compose_no_blocking() throws Exception {
-        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions =
-                cUser.thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
-
-        cPermissions.thenAccept((Permissions p) -> {
-            p.hasPermission("SPORTS");
-        });
+        // Skip
     }
 
     /**
@@ -95,16 +82,13 @@ public class CompletableFutures {
      * - Does this channel exist?
      * - Is chbatey a valid user?
      * - Does chbatey have the permissions to watch Sports?
+     *
+     * How do we transform like with the ListenableFuture?
+     *
+     * How do we add a final callback?
      */
     @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one() throws Exception {
-        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));
-        CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
-
-        channel = cChannel.get();
-        userPermissions = cPermissions.get();
-        user = cUser.get(); // will definitely be done as permissions is done
 
         assertNotNull(channel);
         assertTrue(userPermissions.hasPermission("SPORTS"));
@@ -120,18 +104,6 @@ public class CompletableFutures {
      */
     @Test
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        CompletableFuture<User> cUser = users.lookupUserCompletable("chbatey");
-        CompletableFuture<Permissions> cPermissions = cUser.thenCompose(u -> permissions.permissionsCompletable(u.getUserId()));
-        CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable("SkySportsOne");
-
-        CompletableFuture<Result> cResult = cPermissions.thenCombine(cChannel, (p, c) -> new Result(c, p));
-        CompletableFuture<Result> cTimeout = timeout(3000);
-        CompletableFuture<Result> cResultWithTimeout = cResult.applyToEither(cTimeout, Function.identity());
-
-        blockUntilComplete(cResultWithTimeout);
-
-        assertFalse(cResultWithTimeout.isCompletedExceptionally());
-        result = cResultWithTimeout.get();
         assertNotNull(result.channel);
         assertTrue(result.permissions.hasPermission("SPORTS"));
     }

@@ -106,11 +106,6 @@ public class Synchronous {
      */
     @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_fast() throws Exception {
-        ExecutorService es = Executors.newSingleThreadExecutor();
-        Future<Channel> fChannel = es.submit(() -> channels.lookupChannel("SkySportsOne"));
-        user = users.lookupUser("chbatey");
-        userPermissions = permissions.permissions(user.getUserId());
-        channel = fChannel.get();
 
         assertNotNull(channel);
         assertTrue(userPermissions.hasPermission("SPORTS"));
@@ -123,20 +118,7 @@ public class Synchronous {
      */
     @Test(timeout = 1200)
     public void chbatey_watch_sky_sports_one_timeout() throws Exception {
-        ExecutorService es = Executors.newCachedThreadPool();
-        Future<Result> wholeOperation =  es.submit(() -> {
-            Future<Channel> channelCallable = es.submit(() -> channels.lookupChannel("SkySportsOne"));
-            User chbatey = users.lookupUser("chbatey");
-            Permissions p = permissions.permissions(chbatey.getUserId());
-            try {
-                Channel channel = channelCallable.get();
-                return new Result(channel, p);
-            } catch (Exception e) {
-                throw new RuntimeException("Oh dear", e);
-            }
-        });
-        result = wholeOperation.get(1200, TimeUnit.MILLISECONDS);
-
+       
         assertNotNull(result.channel);
         assertTrue(result.permissions.hasPermission("SPORTS"));
     }

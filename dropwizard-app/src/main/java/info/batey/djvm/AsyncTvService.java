@@ -30,7 +30,6 @@ public class AsyncTvService {
     @Produces("text/plain")
     public void user(@Suspended AsyncResponse asyncResponse,
                      @PathParam("user") String userName) {
-        users.lookupUserCompletable(userName).thenAccept(user -> asyncResponse.resume(user.getName()));
     }
 
     @GET
@@ -38,9 +37,6 @@ public class AsyncTvService {
     public void userPermission(@Suspended AsyncResponse asyncResponse,
                                   @PathParam("user") String userName,
                                   @PathParam("permission") String permission) {
-        users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()))
-                .thenAccept(p -> asyncResponse.resume(p.hasPermission(permission)));
     }
 
     @GET
@@ -49,16 +45,6 @@ public class AsyncTvService {
                                 @PathParam("user") String userName,
                                 @PathParam("permission") String permission,
                                 @PathParam("channel") String channel) {
-        CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
-
-        CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
-
-        CompletableFuture<Result> cResult = cPermission.thenCombine(cChannel, (p, c) -> new Result(c, p));
-
-        cResult.thenAccept(result -> asyncResponse.resume(
-                result.getChannel() != null && result.getPermissions().hasPermission(permission)
-        ));
     }
 
     @GET
@@ -76,17 +62,6 @@ public class AsyncTvService {
                                     @PathParam("permission") String permission,
                                     @PathParam("channel") String channel) {
 
-         CompletableFuture<Permissions> cPermission = users.lookupUserCompletable(userName)
-                .thenCompose(user -> permissions.permissionsCompletable(user.getUserId()));
 
-        CompletableFuture<Channel> cChannel = channels.lookupChannelCompletable(channel);
-
-        CompletableFuture<Result> cResult = cPermission.thenCombine(cChannel, (p, c) -> new Result(c, p));
-
-        cResult.thenAccept(result -> asyncResponse.resume(
-                result.getChannel() != null && result.getPermissions().hasPermission(permission)
-        ));
-
-        asyncResponse.setTimeout(500, TimeUnit.MILLISECONDS);
     }
 }
