@@ -1,7 +1,3 @@
-Two reasons for async:
-* Concurrency
-* Scalability
-
 Java tools:
 * Future
 * ListenableFuture
