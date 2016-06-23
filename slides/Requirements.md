@@ -19,11 +19,6 @@ Call b depends on call a, call c is independent
 
 5 - Remove dependency on Guava, it conflicts with another dependency - 40
 
-6 -  Make the whole operation timeout regardless of which call is taking a 
-long time
-
-Possible future requirements:
-Send a request to two services and respond with the quickest
 
 
 
