@@ -22,8 +22,6 @@ public class SyncTvService {
     private final PermissionsService permissions = PermissionsService.permissionsService();
     private final ChannelService channels = ChannelService.channelService();
 
-    private final ScheduledExecutorService se = Executors.newScheduledThreadPool(5);
-
     @GET
     @Path("/user/{user}")
     public String user(@PathParam("user") String userName) {
@@ -81,4 +79,5 @@ public class SyncTvService {
         Result result = fResult.get(500, TimeUnit.MILLISECONDS);
         return result.getChannel() != null && result.getPermissions().hasPermission(permission);
     }
+    private final ScheduledExecutorService se = Executors.newScheduledThreadPool(5);
 }
