@@ -61,7 +61,6 @@ The scenario is from internet television where a user wants to watch an online c
 * Finally add a fall back if the error is something specific
 
 
-
 ### Future (Jdk)
 
 ### ListenableFuture (Guava)
@@ -69,6 +68,7 @@ The scenario is from internet television where a user wants to watch an online c
 ### CompletableFuture (Jdk)
 
 ### Observable (RxJava)
+- Removed due to length of presentation
 
 ## Take aways
 
@@ -86,23 +86,39 @@ The scenario is from internet television where a user wants to watch an online c
 
 ### Demo
 
+* Check users can see with seeing slide
+
 * Show the synchronous tv service and show the async service we need to 
   implement by the end
+    - 500 ms per call
+    - Go through the complicated call in the synchronous service
+    - How long will the method take?
+
+* Show slide on scenarios and go through them
+ 
 * Show the synchronous test for UserService, ChannelsService and PermissionsService
+  - Explain the AsyncResponse and resume
+
 * Explain that all calls are delayed by 500 milliseconds to handle delay
-* Explain that all methods are implemented synchronously, Future, ListenableFuture and CompletableFuture
+
+* Go go the unit tests for Sync, Futures, Listenable Futures, Completable Futures
+
 * Go through the requirements
 
 Requirement 1: Check user chbatey has the SPORTS permission
-* Implement synchronously
+* Show existing synchronous 
 
 Requirement 2:  Check chbatey can watch SkySportsOne
-* Implement synchronously
+* Show existing synchronously
 
 Requirement 3: Speed up scenario two by making any independent calls concurrent
 * Implement synchronously. Show how hard it is to do when all your
   code relies on blocking calls e.g Using an executor for a small part
 * Implement with a vanilla Future  
+* Implement with all futures
+
+// Move to Listenable Future
+
 
 Requirement 4: Remove blocking
 * Given up on synchronous implementation. Explain why.
@@ -125,14 +141,5 @@ Complete Demo:
 * 1000 requests 100 concurrent. Show thread count and memory
 * Reduce threads to 5 and do it again
 
-#### TODO
 
-??? Slide on converting from Async to syc vs sync to async
-Create some CompletableFuture Koans
-Converting between the various async tools
-Async HTTP Clients
-Async Database drivers
-Async Queueing clients
-Work on ratpack example
-Add akka example
 
