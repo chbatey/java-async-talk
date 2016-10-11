@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.util.concurrent.Futures.transform;
 import static org.junit.Assert.*;
 
 /**
@@ -22,7 +23,7 @@ import static org.junit.Assert.*;
  */
 public class ListenableFutures101 {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ListenableFutures101.class);
+    private static Logger LOG = LoggerFactory.getLogger(ListenableFutures101.class);
 
     private ListeningExecutorService lse = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
@@ -41,7 +42,7 @@ public class ListenableFutures101 {
     public void listeners101() throws Exception {
         ListenableFuture<String> hello = lse.submit(() -> "Hello");
 
-        hello.addListener(() -> System.out.println("Well this is pretty useless, I don't even have the value"), lse);
+        hello.addListener(() -> LOG.info("Well this is pretty useless, I don't even have the value"), lse);
 
         hello.get();
     }
@@ -54,8 +55,7 @@ public class ListenableFutures101 {
         Futures.addCallback(hello, new FutureCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                System.out.println("This time I get thr result! " + result);
-
+                LOG.info("This time I get the result! " + result);
             }
 
             @Override
@@ -90,14 +90,14 @@ public class ListenableFutures101 {
     @Test
     public void transformingAFuture() throws Exception {
         ListenableFuture<String> chris = lse.submit(() -> {
-            LOGGER.info("Hrmm which thread??");
+            LOG.info("Hrmm which thread??");
             Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
             return "Chris";
         });
 
         // hey type inferencer, why is this cast required?
-        ListenableFuture<String> helloChris = Futures.transform(chris, (Function<? super String, ? extends String>) result -> {
-            LOGGER.info("Which thread now??");
+        ListenableFuture<String> helloChris = transform(chris, (Function<? super String, ? extends String>) result -> {
+            LOG.info("Which thread now??");
             return "Hello " + result;
         });
 
@@ -112,7 +112,7 @@ public class ListenableFutures101 {
     @Test
     public void transformingAsync() throws Exception {
         ListenableFuture<String> chris = lse.submit(() -> {
-            LOGGER.info("Hrmm which thread??");
+            LOG.info("Hrmm which thread??");
             Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
             return "Chris";
         });
@@ -129,7 +129,7 @@ public class ListenableFutures101 {
         Executor es = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
                 .setNameFormat("Chris Thread %d").build());
         ListenableFuture<String> chris = lse.submit(() -> {
-            LOGGER.info("Hrmm which thread??");
+            LOG.info("Hrmm which thread??");
             Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
             return "Chris";
         });
@@ -144,13 +144,19 @@ public class ListenableFutures101 {
         assertEquals("Hello Chris", result);
     }
 
+    /**
+     * Defererncing takes a double boxed future and returns a single future
+     */
     @Test
-    public void sandbox() throws Exception {
+    public void deferencing() throws Exception {
         ListenableFuture<String> chris = Futures.immediateFuture("Chris");
+        ListenableFuture<ListenableFuture<String>> ohDear = transform(chris,
+                (Function<String, ListenableFuture<String>>) input -> Futures.immediateFuture(input + " Batey"));
 
+        ListenableFuture<String> saved = Futures.dereference(ohDear);
+        String result = saved.get();
+        assertEquals("Chris Batey", result);
     }
-
-    // dereference
 
     // immediateFuture
 
@@ -161,7 +167,7 @@ public class ListenableFutures101 {
     // ListenableFutureTask
 
     private ListenableFuture<String> asyncHello(String name) {
-        LOGGER.info("Which thread now?");
+        LOG.info("Which thread now?");
         return Futures.immediateFuture("Hello " + name);
     }
 }

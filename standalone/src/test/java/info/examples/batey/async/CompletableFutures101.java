@@ -112,7 +112,7 @@ public class CompletableFutures101 {
     /**
      * thenCombine aka
      *
-     * What is the difference between this adn thenApply?
+     * What is the difference between this and thenApply?
      */
     @Test
     public void howThenCombine() throws Exception {
@@ -178,6 +178,12 @@ public class CompletableFutures101 {
 
         chris.thenAccept(name -> {
             LOG.info("I probably won't be called ");
+        });
+
+        chris.thenRun(() -> LOG.info("Will i run? No chance"));
+
+        chris.whenComplete((result, ex) -> {
+            LOG.info("Aha I finally got something {} {}", result);
         });
 
         CompletableFuture<String> safeChris = chris.exceptionally(ex -> "Trevor");
